@@ -1,40 +1,19 @@
-# TOOLS.md - Local Notes
+# TOOLS.md - Crypto-Specific Local Notes & Skills
 
-Skills define _how_ tools work. This file is for _your_ specifics — the stuff that's unique to your setup.
+## Exchange Config
+- Bybit testnet/paper: https://testnet.bybit.com (use for safe testing)
+- API keys stored in .env (never hardcode)
+- CCXT unified: `exchange = ccxt.bybit({'apiKey': os.getenv('BYBIT_API_KEY'), 'secret': os.getenv('BYBIT_API_SECRET')})`
 
-## What Goes Here
+## Available Skills (for OpenClaw code tool)
+- Fetch OHLCV + indicators: Use pandas_ta for EMA, RSI, ATR
+- Execute trade: `exchange.create_order(symbol, type, side, amount)`
+- Sentiment scan: Browser tool → X/Reddit headlines
+- Backtest: Simple script using historical CCXT data
 
-Things like:
+## Quick Commands
+- Test connection: `exchange.fetch_balance()`
+- Get price: `exchange.fetch_ticker('BTC/USDT')`
+- Risk calc: Position size = (account * 0.01) / (entry - stop)
 
-- Camera names and locations
-- SSH hosts and aliases
-- Preferred voices for TTS
-- Speaker/room names
-- Device nicknames
-- Anything environment-specific
-
-## Examples
-
-```markdown
-### Cameras
-
-- living-room → Main area, 180° wide angle
-- front-door → Entrance, motion-triggered
-
-### SSH
-
-- home-server → 192.168.1.100, user: admin
-
-### TTS
-
-- Preferred voice: "Nova" (warm, slightly British)
-- Default speaker: Kitchen HomePod
-```
-
-## Why Separate?
-
-Skills are shared. Your setup is yours. Keeping them apart means you can update skills without losing your notes, and share skills without leaking your infrastructure.
-
----
-
-Add whatever helps you do your job. This is your cheat sheet.
+Add anything else you learn here.
