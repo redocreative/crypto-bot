@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 import time
 from logging_config import logger, log_trade
 import telegram
-import asyncio  # ← fixes Telegram warning
+import asyncio
 
 load_dotenv()
 
@@ -42,14 +42,12 @@ def run_trader_cycle():
         if crossover and rsi_oversold:
             price = df['close'].iloc[-1]
             balance = float(exchange.fetch_balance()['total']['USD'])
-            size = 0.01 * balance / price  # 1% portfolio risk
+            size = 0.01 * balance / price
             stop = price - 2 * df['atr'].iloc[-1]
             
-            # Place PAPER order (sandbox mode — no real money)
             order = exchange.create_order(symbol, 'market', 'buy', size)
             
             log_trade("BUY EXECUTED", symbol, "EMA crossover + RSI", f"Price: ${price:.2f} | Size: {size:.6f} | Order ID: {order['id']}")
-            
             asyncio.run(send_telegram(f"🚀 PAPER BUY EXECUTED\n{symbol} @ ${price:.2f}\nSize: {size:.6f}\nStop: ${stop:.2f}\nOrder ID: {order['id']}"))
         else:
             logger.info(f"No confluence on {symbol} — skipping")
@@ -59,4 +57,4 @@ def run_trader_cycle():
 if __name__ == "__main__":
     while True:
         run_trader_cycle()
-        time.sleep(900)  # 15 minutes
+        time.sleep(900)
