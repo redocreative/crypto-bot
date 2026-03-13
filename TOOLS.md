@@ -1,19 +1,17 @@
-# TOOLS.md - Crypto-Specific Local Notes & Skills
+# TOOLS.md - Crypto-Specific Local Notes & Skills (Alpaca Paper Mode)
 
-## Exchange Config
-- Bybit testnet/paper: https://testnet.bybit.com (use for safe testing)
-- API keys stored in .env (never hardcode)
-- CCXT unified: `exchange = ccxt.bybit({'apiKey': os.getenv('BYBIT_API_KEY'), 'secret': os.getenv('BYBIT_API_SECRET')})`
+## Exchange Config (Paper Only — Arizona Compliant)
+- Use Alpaca paper trading (fully legal in AZ)
+- CCXT setup (copy-paste ready):
+  ```python
+  import ccxt
+  import os
+  from dotenv import load_dotenv
+  load_dotenv()
 
-## Available Skills (for OpenClaw code tool)
-- Fetch OHLCV + indicators: Use pandas_ta for EMA, RSI, ATR
-- Execute trade: `exchange.create_order(symbol, type, side, amount)`
-- Sentiment scan: Browser tool → X/Reddit headlines
-- Backtest: Simple script using historical CCXT data
-
-## Quick Commands
-- Test connection: `exchange.fetch_balance()`
-- Get price: `exchange.fetch_ticker('BTC/USDT')`
-- Risk calc: Position size = (account * 0.01) / (entry - stop)
-
-Add anything else you learn here.
+  exchange = ccxt.alpaca({
+      'apiKey': os.getenv('ALPACA_API_KEY'),
+      'secret': os.getenv('ALPACA_SECRET_KEY'),
+      'enableRateLimit': True
+  })
+  exchange.set_sandbox_mode(True)  # ← CRITICAL: keeps everything in paper mode

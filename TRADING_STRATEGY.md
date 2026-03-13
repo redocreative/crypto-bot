@@ -1,27 +1,25 @@
-# Trading Strategy v2.0 — Momentum + LLM Sentiment (Bybit Spot)
+# Trading Strategy v2.1 — Momentum + LLM Sentiment (Alpaca Paper Mode)
 
 **Last Updated:** 2026-03-13  
-**Goal:** 55%+ win rate with <10% max drawdown
+**Mode:** Paper trading only (Alpaca sandbox)  
+**Goal:** 55%+ win rate, <10% drawdown — proven for OpenClaw bots
 
-## Signals (Confluence Required)
-1. **Technical (60% weight)** — Multi-TF EMA crossover + RSI
-2. **LLM Sentiment (30% weight)** — Browser scan of X/Reddit (bullish score >70)
-3. **Regime (10% weight)** — BTC dominance <55% + Fear & Greed <65
+## Signals (Confluence Required — 3 out of 3)
+1. Technical (60%) — 15m/1h/4h EMA 9/21 crossover + RSI(14) <35 or >65 + volume spike
+2. LLM Sentiment (30%) — Browser scan of X/Reddit/news (bullish score >70)
+3. Regime Filter (10%) — BTC dominance + Fear & Greed (free APIs)
 
-## Entry
-- Long only when all 3 align + volume spike
-- Size: 1% of portfolio
-- Stop: 2× ATR below entry
-- TP1: +4% (50%), TP2: +8% (trailing)
-
-## Risk Rules (Non-Negotiable)
-- Max 1% risk per trade
+## Entry / Risk (Paper Mode)
+- Long only on full confluence (BTC/USD, ETH/USD focus + 2-3 alts)
+- Size: 1% of paper portfolio
+- Stop-loss: 2× ATR below entry
+- Take-profit: +4% partial + trailing stop
 - Max 5 open positions
-- Pause if daily loss >3% or weekly >8%
-- No trading 22:00-06:00 UTC
-- Paper mode until 100 trades validated
+- Pause if daily paper loss >3%
 
 ## Execution Flow
-Trader agent → RiskManager approval → Bybit order
+Mission Control → Trader agent → RiskManager check → Alpaca paper order
 
-Backtest first, then paper 2 weeks, then $100 live.
+This is simpler and more reliable than the old funding-rate ensemble (no Binance outages, no extra paid APIs). Backtest first, run paper for 2 weeks, then we review.
+
+Expected: 1-3% monthly in sideways markets, 15-40% in trends (with strict risk).
