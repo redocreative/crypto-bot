@@ -20,6 +20,7 @@ During each heartbeat:
 ## 📊 Weekly Self-Improvement
 Every Sunday at 00:00 MST: Spawn the StrategyReviewer agent.
 It reads all logs, calculates real win rate/drawdown, asks Grok for improvements, and auto-updates TRADING_STRATEGY.md.
+Every Sunday: Spawn StrategyReviewer agent → analyzes logs → updates TRADING_STRATEGY.md automatically
 
 ## 🧠 The Golden Rule: Don't Guess
 When asked about something a sub-agent is handling, spawn the agent and ask them directly. Never guess or read stale files.
