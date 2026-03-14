@@ -19,6 +19,7 @@ def backtest_pnl(days=30, rsi_threshold=48):
     since = int((datetime.now() - timedelta(days=days)).timestamp() * 1000)
     total_signals = 0
     total_pnl = 0.0
+    portfolio = 100000.0  # starting paper balance
     
     for symbol in ['BTC/USD', 'ETH/USD', 'SOL/USD']:
         bars = exchange.fetch_ohlcv(symbol, timeframe='1h', since=since, limit=2000)
@@ -34,7 +35,6 @@ def backtest_pnl(days=30, rsi_threshold=48):
         if len(df) < 30:
             continue
         
-        # Uptrend + dip logic
         uptrend = df['ema9'] > df['ema21']
         df['signal'] = uptrend & (df['rsi'] < rsi_threshold)
         
@@ -45,18 +45,16 @@ def backtest_pnl(days=30, rsi_threshold=48):
             total_signals += 1
             price = df.loc[idx, 'close']
             atr = df.loc[idx, 'atr']
-            size = 0.01 * 100000 / price  # 1% of $100k paper portfolio
+            size = 0.01 * portfolio / price   # 1% risk
             
-            # Simple P&L simulation
-            tp_price = price * 1.04
-            sl_price = price - 2 * atr
-            hypothetical_pnl = size * 0.04   # +4% TP win
+            # Correct dollar P&L
+            hypothetical_pnl = size * price * 0.04  # +4% TP win
             total_pnl += hypothetical_pnl
             
             print(f"  Signal @ {df.loc[idx, 'timestamp']} | Price ${price:.2f} | RSI {df.loc[idx, 'rsi']:.1f}")
-            print(f"    → Hypothetical win: +${hypothetical_pnl:.2f} portfolio (4% TP)")
+            print(f"    → Hypothetical win: +${hypothetical_pnl:.2f} (4% TP)")
     
-    print(f"\n=== SUMMARY ===\nTotal signals: {total_signals}\nEstimated 30-day P&L (if all hit 4% TP): +${total_pnl:.2f} (+{total_pnl/1000:.1f}% on $100k)")
+    print(f"\n=== SUMMARY ===\nTotal signals: {total_signals}\nEstimated 30-day P&L (if all hit 4% TP): +${total_pnl:.2f} (+{total_pnl/portfolio*100:.1f}% on $100k)")
 
 if __name__ == "__main__":
     backtest_pnl(days=30, rsi_threshold=48)
