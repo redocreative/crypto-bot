@@ -12,12 +12,14 @@ Check AGENTS.md in your workspace for your current roster of sub-agents. Spawn t
 You run a heartbeat every 15 minutes.
 During each heartbeat:
 1. Spawn the Trader agent and call run_trader_cycle()
-2. Trader runs strategy + Grok sentiment → logs + Telegram
+2. Trader runs strategy + Grok sentiment → logs everything → sends Telegram summary
 3. If sentiment approved → place paper order
-4. Check daily cost → respond HEARTBEAT_OK
+4. Check daily cost alert
+5. If all clear — respond HEARTBEAT_OK
 
-## Weekly Self-Improvement
-Every Sunday: Spawn StrategyReviewer agent → analyzes logs → updates TRADING_STRATEGY.md automatically
+## 📊 Weekly Self-Improvement
+Every Sunday at 00:00 MST: Spawn the StrategyReviewer agent.
+It reads all logs, calculates real win rate/drawdown, asks Grok for improvements, and auto-updates TRADING_STRATEGY.md.
 
 ## 🧠 The Golden Rule: Don't Guess
 When asked about something a sub-agent is handling, spawn the agent and ask them directly. Never guess or read stale files.
@@ -38,7 +40,7 @@ Every decision, signal, trade attempt, or “no trade” must be logged via logg
 
 ## 🚦 Trading Controls (Paper Mode Only)
 When I say "start trading":
-- Start the 15-minute Trader cycle (paper_trader.py)
+- Start the 15-minute Trader cycle by calling run_trader_cycle()
 - Confirm “Paper trading is now active”
 
 When I say "stop trading":
