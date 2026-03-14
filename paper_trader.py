@@ -26,8 +26,8 @@ async def send_telegram(text):
 def run_trader_cycle():
     logger.info("=== 15-min paper trading cycle started ===")
     
-    for symbol in ['BTC/USD', 'ETH/USD']:
-        bars = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=100)  # 1h for better signals
+    for symbol in ['BTC/USD', 'ETH/USD', 'SOL/USD']:
+        bars = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=200)
         df = pd.DataFrame(bars, columns=['timestamp', 'open', 'high', 'low', 'close', 'volume'])
         df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
         
@@ -36,11 +36,15 @@ def run_trader_cycle():
         df['rsi'] = ta.rsi(df['close'], length=14)
         df['atr'] = ta.atr(df['high'], df['low'], df['close'], length=14)
         
-        crossover = df['ema9'].iloc[-1] > df['ema21'].iloc[-1] and df['ema9'].iloc[-2] <= df['ema21'].iloc[-2]
-        rsi_condition = df['rsi'].iloc[-1] < 40
-        volume_spike = df['volume'].iloc[-1] > df['volume'].rolling(20).mean().iloc[-1]
+        df = df.dropna()
+        if len(df) < 30:
+            logger.info(f"Insufficient data on {symbol} — skipping")
+            continue
         
-        if crossover and rsi_condition and volume_spike:
+        uptrend = df['ema9'].iloc[-1] > df['ema21'].iloc[-1]
+        rsi_condition = df['rsi'].iloc[-1] < 48
+        
+        if uptrend and rsi_condition:
             price = df['close'].iloc[-1]
             balance = float(exchange.fetch_balance()['total']['USD'])
             size = 0.01 * balance / price
@@ -48,10 +52,11 @@ def run_trader_cycle():
             
             order = exchange.create_order(symbol, 'market', 'buy', size)
             
-            log_trade("BUY EXECUTED", symbol, "EMA crossover + RSI<40 + Volume", f"Price: ${price:.2f}")
-            asyncio.run(send_telegram(f"🚀 PAPER BUY EXECUTED\n{symbol} @ ${price:.2f}\nReason: Tuned strategy\nSize: {size:.6f}"))
+            log_trade("BUY EXECUTED", symbol, "Uptrend + RSI<48 dip", f"Price: ${price:.2f} | RSI: {df['rsi'].iloc[-1]:.1f}")
+            asyncio.run(send_telegram(f"🚀 PAPER BUY EXECUTED\n{symbol} @ ${price:.2f}\nReason: Uptrend dip\nSize: {size:.6f}"))
+            logger.info(f"✅ SIGNAL on {symbol} — Order ID: {order['id']}")
         else:
-            logger.info(f"No confluence on {symbol} — skipping")
+            logger.info(f"No signal on {symbol} | RSI: {df['rsi'].iloc[-1]:.1f} | Uptrend: {uptrend}")
     
     logger.info("=== Cycle complete ===\n")
 
