@@ -11,10 +11,13 @@ Check AGENTS.md in your workspace for your current roster of sub-agents. Spawn t
 ## 💓 Heartbeat & Trading Cycle (15-minute paper cycle)
 You run a heartbeat every 15 minutes.
 During each heartbeat:
-1. Spawn the Trader agent (paper_trader.py)
-2. Trader runs the current strategy from TRADING_STRATEGY.md → logs everything → sends Telegram summary
-3. Check for daily cost alert
-4. If all clear — respond HEARTBEAT_OK
+1. Spawn the Trader agent and call run_trader_cycle()
+2. Trader runs strategy + Grok sentiment → logs + Telegram
+3. If sentiment approved → place paper order
+4. Check daily cost → respond HEARTBEAT_OK
+
+## Weekly Self-Improvement
+Every Sunday: Spawn StrategyReviewer agent → analyzes logs → updates TRADING_STRATEGY.md automatically
 
 ## 🧠 The Golden Rule: Don't Guess
 When asked about something a sub-agent is handling, spawn the agent and ask them directly. Never guess or read stale files.

@@ -7,7 +7,7 @@ import time
 from logging_config import logger, log_trade
 import telegram
 import asyncio
-from grok_sentiment import get_grok_sentiment   # ← new import
+from grok_sentiment import get_grok_sentiment
 
 load_dotenv()
 
@@ -25,7 +25,8 @@ async def send_telegram(text):
     await bot.send_message(chat_id=chat_id, text=text)
 
 def run_trader_cycle():
-    logger.info("=== 15-min paper trading cycle started ===")
+    """Single cycle that OpenClaw will call every 15 minutes"""
+    logger.info("=== OpenClaw 15-min trading cycle started ===")
     
     for symbol in ['BTC/USD', 'ETH/USD', 'SOL/USD']:
         bars = exchange.fetch_ohlcv(symbol, timeframe='1h', limit=200)
@@ -39,6 +40,7 @@ def run_trader_cycle():
         
         df = df.dropna()
         if len(df) < 30:
+            logger.info(f"Insufficient data on {symbol} — skipping")
             continue
         
         uptrend = df['ema9'].iloc[-1] > df['ema21'].iloc[-1]
@@ -59,15 +61,15 @@ def run_trader_cycle():
                 
                 log_trade("BUY EXECUTED", symbol, f"Uptrend+RSI + Grok {sentiment['score']}", f"Price: ${price:.2f}")
                 asyncio.run(send_telegram(f"🚀 PAPER BUY EXECUTED\n{symbol} @ ${price:.2f}\nGrok Sentiment: {sentiment['score']}/100\nReason: {sentiment['reason'][:120]}"))
-                logger.info(f"✅ FULL APPROVAL on {symbol}")
+                logger.info(f"✅ FULL APPROVAL on {symbol} — Order ID: {order['id']}")
             else:
-                logger.info(f"❌ Sentiment rejected ({sentiment['score']})")
+                logger.info(f"❌ Sentiment rejected on {symbol} ({sentiment['score']})")
         else:
-            logger.info(f"No technical signal on {symbol}")
+            logger.info(f"No technical signal on {symbol} | RSI: {df['rsi'].iloc[-1]:.1f}")
     
     logger.info("=== Cycle complete ===\n")
+    return "HEARTBEAT_OK"   # ← OpenClaw expects this
 
+# For manual testing (you can still run this in terminal)
 if __name__ == "__main__":
-    while True:
-        run_trader_cycle()
-        time.sleep(900)
+    run_trader_cycle()
