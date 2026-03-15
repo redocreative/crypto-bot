@@ -45,3 +45,6 @@ ENV/
 
 __pychache__/
 *.pyc
+
+# Memory dumps
+memory/
